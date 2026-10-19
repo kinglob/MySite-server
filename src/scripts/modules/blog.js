@@ -1,40 +1,71 @@
 import fs from 'fs';
 
-export function clientrequest(r) {
-  // replace this with a query string api
-  r.headersOut["Content-Type"] = "application/json; charset=utf-8";
+const MYSITE_PATH = "/var/lib/MySite";
+const BLOGPOSTS_PATH = MYSITE_PATH + "/BlogPosts-v1_0_0";
+const MAX_POST_LIMIT = 10;
 
-  if (r.method !== "GET") {
-    r.headersOut["Allow"] = "GET";
-    r.return(405, JSON.stringify({
+// takes a query string
+export async function clientrequest_v1(r) {
+  // check if init
+  var is_init = r.args.isinit;
+  if (is_init == 1) {
+    try {
+      const files = fs.readdirSync(BLOGPOSTS_PATH, { withFileTypes: true });
+      var file_ids = [];
+
+      files.forEach((file) => {
+        if (!file.isFile()) return;
+        const result = file.name.match("_(\d+)\.json$")
+        file_ids.push(file.name.substring(result[1]))
+      })
+
+      r.return(200, JSON.stringify({
+        success: true,
+        data: file_ids,
+        type: "init"
+      }));
+      return;
+    } catch (e) {
+      r.return(500, JSON.stringify({
         success: false,
-        error: "GET method only."
-    }));
-    return;
+        type: "init"
+      }));
+      return;
+    }
   }
 
-  try {
-    // read requested blog post indices
-    const data = await r.readRequestJSON();
-    r.log(`Client requested posts: ${data}`);
+  var post_ids = r.args.ids;
+  r.log(`Client requested posts: ${post_ids}`);
+  var posts = []
 
-    // send blog post data to the client
-    var response = {};
+  try {
+    if (typeof(post_ids) == "object") {
+      for (var i = 0; i < post_ids.length; i++) {
+        var postid = post_ids[i];
+        const postpath =  `${BLOGPOSTS_PATH}/post_${toString(postid)}.json`;
+        const postdata = await fs.promises.readFile(postpath);
+        const postjson = JSON.parse(postdata);
+        posts.push(postjson);
+        if (i > 10) { break; }
+      }
+    } else {
+      var postid = post_ids[i];
+      const postpath =  `${BLOGPOSTS_PATH}/post_${toString(postid)}.json`;
+      const postdata = await fs.promises.readFile(postpath);
+      const postjson = JSON.parse(postdata);
+      posts.push(postjson);
+    }
 
     r.return(200, JSON.stringify({
       success: true,
-      data: response
+      data: posts,
+      type: "postdata"
     }));
   } catch (e) {
-    r.return(400, JSON.stringify({
+    r.log(`Failed to get ${postid} from ${BLOGPOSTS_PATH}`)
+    r.return(500, JSON.stringify({
       success: false,
-      error: "Invalid JSON"
+      type: "postdata"
     }));
-  }
-}
-
-// returns a json string of count (int) blog posts
-// reads json files under /
-function getblogposts(count) {
-
+  };
 }
