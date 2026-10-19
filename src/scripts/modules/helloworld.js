@@ -1,3 +1,4 @@
 export function hello(r) {
-	r.return(200, "Hello, World!");
+    r.headersOut["Content-Type"] = "text/plain; charset=utf-8";
+    r.return(200, "Hello, World!");
 };

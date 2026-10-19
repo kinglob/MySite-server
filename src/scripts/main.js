@@ -1,4 +1,4 @@
-import hello from "./modules/helloworld";
+import { hello } from "./modules/helloworld";
 
 export default {
 	hello
