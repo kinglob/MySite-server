@@ -27,7 +27,7 @@ export async function clientrequest_v1(r) {
       var file_ids = [];
 
       for (const file of files) {
-        if (!file.isFile()) return;
+        if (!file.isFile()) continue;
 
         const postname_regex = /^post_(\d+)\.json$/;
         const match = postname_regex.exec(file.name);
@@ -52,11 +52,12 @@ export async function clientrequest_v1(r) {
   const raw_ids = r.args.ids
   r.log(`Client requested ids ${raw_ids}`);
   var post_ids = [];
+  
 
   if (typeof raw_ids === "string") {
     post_ids = raw_ids.split(",");
     if (!Array.isArray(post_ids)) {
-      post_ids.push(post_ids) // fuck YOU!!!
+      post_ids.push(post_ids)
     }
   } else if (Array.isArray(raw_ids)) {
     for (const value of raw_ids) {
@@ -77,7 +78,7 @@ export async function clientrequest_v1(r) {
     if (typeof(post_ids) == "object") {
       var postsrequested = 0
       for (const postid of post_ids) {
-        const postpath =  `${BLOGPOSTS_PATH}/post_${toString(postid)}.json`;
+        const postpath =  `${BLOGPOSTS_PATH}/post_${postid}.json`;
         try {
           console.log(`Adding post ${postpath} to payload.`);
           const postdata = await fs.promises.readFile(postpath);
@@ -91,6 +92,7 @@ export async function clientrequest_v1(r) {
             success: false,
             type: "postdata"
           }));
+          return;
         };
       }
     } else {
@@ -106,6 +108,7 @@ export async function clientrequest_v1(r) {
           success: false,
           type: "postdata"
         }));
+        return;
       };
     }
 
