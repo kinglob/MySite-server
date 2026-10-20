@@ -10,6 +10,7 @@ export async function clientrequest_v1(r) {
 
   if (r.method !== "GET") {
       r.headersOut["Allow"] = "GET";
+      r.error(`Client sent invalid https request content type: ${r.headersOut["Content-Type"]}`);
       r.return(405, JSON.stringify({
           success: false,
           error: "GET method only."
@@ -18,8 +19,9 @@ export async function clientrequest_v1(r) {
   }
 
   // check if init
-  var is_init = r.args.isinit;
+  const is_init = r.args.isinit;
   if (is_init == '1') {
+    r.log("Sending init data to client.");
     try {
       const files = fs.readdirSync(BLOGPOSTS_PATH, { withFileTypes: true });
       var file_ids = [];
