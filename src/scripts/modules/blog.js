@@ -83,7 +83,7 @@ export async function clientrequest_v1(r) {
       type: "postdata"
     }));
   } catch (e) {
-    r.log(`Failed to get ${postid} from ${BLOGPOSTS_PATH}`)
+    r.log("Failed to get post:", e);
     r.return(500, JSON.stringify({
       success: false,
       type: "postdata"
