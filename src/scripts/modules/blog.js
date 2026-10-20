@@ -6,6 +6,17 @@ const MAX_POST_LIMIT = 10;
 
 // takes a query string
 export async function clientrequest_v1(r) {
+  r.headersOut["Content-Type"] = "application/json; charset=utf-8";
+
+  if (r.method !== "GET") {
+      r.headersOut["Allow"] = "GET";
+      r.return(405, JSON.stringify({
+          success: false,
+          error: "GET method only."
+      }));
+      return;
+  }
+
   // check if init
   var is_init = r.args.isinit;
   if (is_init == '1') {
