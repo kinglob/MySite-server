@@ -8,7 +8,7 @@ const MAX_POST_LIMIT = 10;
 export async function clientrequest_v1(r) {
   // check if init
   var is_init = r.args.isinit;
-  if (is_init == 1) {
+  if (is_init == '1') {
     try {
       const files = fs.readdirSync(BLOGPOSTS_PATH, { withFileTypes: true });
       var file_ids = [];
