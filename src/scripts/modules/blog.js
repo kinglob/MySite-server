@@ -66,26 +66,41 @@ export async function clientrequest_v1(r) {
   }
 
   r.log(`Client requested posts: ${post_ids}`);
+  
   var posts = []
-
-  try {
     if (typeof(post_ids) == "object") {
       var postsrequested = 0
       for (const postid of post_ids) {
-        const postpath =  `${BLOGPOSTS_PATH}/post_${toString(postid)}.json`;
-        console.log(`Adding post ${postpath} to payload.`);
-        const postdata = await fs.promises.readFile(postpath);
-        const postjson = JSON.parse(postdata);
-        posts.push(postjson);
-        postsrequested++;
-        if (postsrequested > 10) break;
+        try {
+          const postpath =  `${BLOGPOSTS_PATH}/post_${toString(postid)}.json`;
+          console.log(`Adding post ${postpath} to payload.`);
+          const postdata = await fs.promises.readFile(postpath);
+          const postjson = JSON.parse(postdata);
+          posts.push(postjson);
+          postsrequested++;
+          if (postsrequested > 10) break;
+        } catch (e) {
+          r.error(`Failed to load post ${postid}: ${e}`);
+          r.return(500, JSON.stringify({
+            success: false,
+            type: "postdata"
+          }));
+        };
       }
     } else {
       const postid = post_ids;
-      const postpath =  `${BLOGPOSTS_PATH}/post_${toString(postid)}.json`;
-      const postdata = await fs.promises.readFile(postpath);
-      const postjson = JSON.parse(postdata);
-      posts.push(postjson);
+      try {
+        const postpath =  `${BLOGPOSTS_PATH}/post_${toString(postid)}.json`;
+        const postdata = await fs.promises.readFile(postpath);
+        const postjson = JSON.parse(postdata);
+        posts.push(postjson);
+      } catch (e) {
+        r.error(`Failed to load post ${postid}: ${e}`);
+        r.return(500, JSON.stringify({
+          success: false,
+          type: "postdata"
+        }));
+      };
     }
 
     r.return(200, JSON.stringify({
@@ -93,11 +108,4 @@ export async function clientrequest_v1(r) {
       data: posts,
       type: "postdata"
     }));
-  } catch (e) {
-    r.log("Failed to get post:", e);
-    r.return(500, JSON.stringify({
-      success: false,
-      type: "postdata"
-    }));
-  };
 }
