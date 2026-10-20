@@ -56,7 +56,7 @@ export async function clientrequest_v1(r) {
   if (typeof raw_ids === "string") {
     post_ids = raw_ids.split(",");
     if (!Array.isArray(post_ids)) {
-      post_ids = [post_ids]; // fuck you
+      post_ids.push(post_ids) // fuck YOU!!!
     }
   } else if (Array.isArray(raw_ids)) {
     for (const value of raw_ids) {
