@@ -13,11 +13,13 @@ export async function clientrequest_v1(r) {
       const files = fs.readdirSync(BLOGPOSTS_PATH, { withFileTypes: true });
       var file_ids = [];
 
-      files.forEach((file) => {
+      for (const file of files) {
         if (!file.isFile()) return;
-        const result = file.name.match("_(\d+)\.json$")
-        file_ids.push(file.name.substring(result[1]))
-      })
+
+        const postname_regex = /^post_(\d+)\.json$/;
+        const match = postname_regex.exec(file.name);
+        file_ids.push(match[1]);
+      }
 
       r.return(200, JSON.stringify({
         success: true,
