@@ -36,7 +36,24 @@ export async function clientrequest_v1(r) {
     }
   }
 
-  var post_ids = r.args.ids;
+  const raw_ids = r.args.ids
+  var post_ids = [];
+
+  if (typeof raw_ids === "string") {
+    post_ids = raw_ids.split(",");
+  } else if (Array.isArray(raw_ids)) {
+    for (const value of raw_ids) {
+      post_ids.push(value.split(","));
+    }
+  } else {
+    r.return(400, JSON.stringify({
+      success: false,
+      error: "Missing post IDs.",
+      type: "postdata"
+    }));
+    return;
+  }
+
   r.log(`Client requested posts: ${post_ids}`);
   var posts = []
 
