@@ -59,16 +59,18 @@ export async function clientrequest_v1(r) {
 
   try {
     if (typeof(post_ids) == "object") {
-      for (var i = 0; i < post_ids.length; i++) {
-        var postid = post_ids[i];
+      var postsrequested = 0
+      for (const postid of post_ids) {
         const postpath =  `${BLOGPOSTS_PATH}/post_${toString(postid)}.json`;
+        console.log(`Adding post ${postpath} to payload.`);
         const postdata = await fs.promises.readFile(postpath);
         const postjson = JSON.parse(postdata);
         posts.push(postjson);
-        if (i > 10) { break; }
+        postsrequested++;
+        if (postsrequested > 10) break;
       }
     } else {
-      var postid = post_ids[i];
+      const postid = post_ids;
       const postpath =  `${BLOGPOSTS_PATH}/post_${toString(postid)}.json`;
       const postdata = await fs.promises.readFile(postpath);
       const postjson = JSON.parse(postdata);
