@@ -48,6 +48,7 @@ export async function clientrequest_v1(r) {
   }
 
   const raw_ids = r.args.ids
+  r.log(`Client requested ids ${raw_ids}`);
   var post_ids = [];
 
   if (typeof raw_ids === "string") {
