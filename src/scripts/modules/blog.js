@@ -71,8 +71,8 @@ export async function clientrequest_v1(r) {
     if (typeof(post_ids) == "object") {
       var postsrequested = 0
       for (const postid of post_ids) {
+        const postpath =  `${BLOGPOSTS_PATH}/post_${toString(postid)}.json`;
         try {
-          const postpath =  `${BLOGPOSTS_PATH}/post_${toString(postid)}.json`;
           console.log(`Adding post ${postpath} to payload.`);
           const postdata = await fs.promises.readFile(postpath);
           const postjson = JSON.parse(postdata);
@@ -80,7 +80,7 @@ export async function clientrequest_v1(r) {
           postsrequested++;
           if (postsrequested > 10) break;
         } catch (e) {
-          r.error(`Failed to load post ${postid}: ${e}`);
+          r.error(`Failed to load post ${postid} at ${postpath}: ${e}`);
           r.return(500, JSON.stringify({
             success: false,
             type: "postdata"
@@ -89,13 +89,13 @@ export async function clientrequest_v1(r) {
       }
     } else {
       const postid = post_ids;
+      const postpath =  `${BLOGPOSTS_PATH}/post_${toString(postid)}.json`;
       try {
-        const postpath =  `${BLOGPOSTS_PATH}/post_${toString(postid)}.json`;
         const postdata = await fs.promises.readFile(postpath);
         const postjson = JSON.parse(postdata);
         posts.push(postjson);
       } catch (e) {
-        r.error(`Failed to load post ${postid}: ${e}`);
+        r.error(`Failed to load post ${postid} at ${postpath}: ${e}`);
         r.return(500, JSON.stringify({
           success: false,
           type: "postdata"
